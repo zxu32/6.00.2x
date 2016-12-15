@@ -152,8 +152,11 @@ def r_squared(y, estimated):
     Returns:
         a float for the R-squared error term
     """
-    # TODO
-    pass
+    yVals = pylab.array(y)
+    estimatedVals = pylab.array(estimated)
+    error = ((estimatedVals - yVals)**2).sum()
+    meanError = error/len(yVals)
+    return 1 - (meanError/pylab.var(yVals))
 
 
 # Problem 3
@@ -178,9 +181,24 @@ def evaluate_models_on_training(x, y, models):
     Returns:
         None
     """
-    # TODO
-    pass
+    xVals = pylab.array(x)
+    yVals = pylab.array(y)
+    rSquareds = []
+    estVals = []
+    for model in models:
+        estVals.append(pylab.polyval(model, xVals))
+        rSquareds.append(r_squared(yVals, pylab.polyval(model, xVals)))
+    maxRsquared = max(rSquareds)
+    bestFitModel = models[rSquareds.index(maxRsquared)]
+    bestFitVals = pylab.polyval(bestFitModel, xVals)
 
+    pylab.plot(xVals, yVals)
+    pylab.plot(xVals, bestFitVals)
+    pylab.title('degree of model: ' + str(len(bestFitModel)) + '\n'
+                + 'R-squared of model: ' + str(maxRsquared))
+    pylab.xlabel('year')
+    pylab.ylabel('temperature')
+    pylab.show()
 
 ### Begining of program
 raw_data = Climate('data.csv')
@@ -198,6 +216,7 @@ evaluate_models_on_training(x, y, models)
 x1 = INTERVAL_1
 x2 = INTERVAL_2
 y = []
-# MISSING LINES
-models = generate_models(x, y, [1])
-evaluate_models_on_training(x, y, models)
+for year in INTERVAL_1:
+    y.append(pylab.mean(raw_data.get_yearly_temp('BOSTON', year)))
+models = generate_models(x1, y, [1])
+evaluate_models_on_training(x1, y, models)

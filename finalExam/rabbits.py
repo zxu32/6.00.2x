@@ -6,6 +6,7 @@ MAXRABBITPOP = 1000
 CURRENTRABBITPOP = 500
 CURRENTFOXPOP = 30
 
+
 def rabbitGrowth():
     """ 
     rabbitGrowth is called once at the beginning of each time step.
@@ -20,10 +21,15 @@ def rabbitGrowth():
     """
     # you need this line for modifying global variables
     global CURRENTRABBITPOP
+    currentRabbitPopCopy = CURRENTRABBITPOP
 
-    # TO DO
-    pass
-            
+    for rabbit in range(currentRabbitPopCopy):
+        if 10 < CURRENTRABBITPOP < MAXRABBITPOP:
+            reproduce = random.random()
+            if reproduce <= (1 - CURRENTRABBITPOP/MAXRABBITPOP):
+                CURRENTRABBITPOP += 1
+
+
 def foxGrowth():
     """ 
     foxGrowth is called once at the end of each time step.
@@ -44,9 +50,20 @@ def foxGrowth():
     global CURRENTRABBITPOP
     global CURRENTFOXPOP
 
-    # TO DO
-    pass
-    
+    currentFoxPopCopy = CURRENTFOXPOP
+
+    for fox in range(currentFoxPopCopy):
+        if 10 < CURRENTRABBITPOP:
+            eatRabbitPop = random.random()
+            if eatRabbitPop <= CURRENTRABBITPOP/MAXRABBITPOP:
+                CURRENTRABBITPOP -= 1
+                reproducePop = random.random()
+                if reproducePop <= 1/3:
+                    CURRENTFOXPOP += 1
+            foxDiePop = random.random()
+            if foxDiePop <= 0.1:
+                CURRENTFOXPOP -= 1
+
             
 def runSimulation(numSteps):
     """
@@ -59,6 +76,35 @@ def runSimulation(numSteps):
 
     Both lists should be `numSteps` items long.
     """
+    rabbit_populations = []
+    fox_populations = []
+    for step in range(numSteps):
+        rabbitGrowth()
+        foxGrowth()
+        rabbit_populations.append(CURRENTRABBITPOP)
+        fox_populations.append(CURRENTFOXPOP)
 
-    # TO DO
-    pass
+    return rabbit_populations, fox_populations
+
+
+if __name__ == '__main__':
+    rabbitPops, foxPops = runSimulation(200)
+    timeSteps = []
+    for i in range(200):
+        timeSteps.append(i)
+
+    pylab.plot(timeSteps, rabbitPops)
+    pylab.plot(timeSteps, foxPops)
+    pylab.title('rabbit and fox simulation')
+    pylab.xlabel('Time step')
+    pylab.ylabel('# of animal')
+
+
+    rabbitModel = pylab.polyfit(timeSteps, rabbitPops, 2)
+    estRabbitPops = pylab.polyval(rabbitModel, timeSteps)
+    pylab.plot(timeSteps, estRabbitPops, label='rabbit pops 2nd order poly fit')
+    foxModel = pylab.polyfit(timeSteps, foxPops, 2)
+    estFoxPops = pylab.polyval(foxModel, timeSteps)
+    pylab.plot(timeSteps, estFoxPops, label='fox pops 2nd order poly fit')
+
+    pylab.show()
